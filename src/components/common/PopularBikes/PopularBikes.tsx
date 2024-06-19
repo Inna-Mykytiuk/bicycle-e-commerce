@@ -1,17 +1,28 @@
-// 'use client';
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import Link from 'next/link';
 import { getPopularProducts } from '../../../../sanity/request/popularProductRequest';
-import { PopularBike } from './types';
+import PopularBikesCarousel from '../PopularBikesCarousel/PopularBikesCarousel';
 
 const PopularBikes = async () => {
-  const products = await getPopularProducts();
-  console.log(products);
+  const bikes = await getPopularProducts();
 
   return (
-    <div>
-      <h1>Popular Bikes</h1>
-    </div>
+    <section className="py-24">
+      <div className="container mx-auto">
+        <h2 className="text-center">Most Popular Bikes</h2>
+        <p className="mb-[30px] text-center">
+          The World&apos;s Premium Brands In One Destination
+        </p>
+        <div>Carousel</div>
+        <PopularBikesCarousel bikes={bikes} />
+        <Link
+          href="/our-bikes"
+          className="btn btn-accent mx-auto max-w-[200px]"
+        >
+          See All Bikes
+        </Link>
+      </div>
+    </section>
   );
 };
 

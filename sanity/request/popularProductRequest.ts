@@ -5,4 +5,3 @@ export const getPopularProducts = async () => {
   const data = await client.fetch(popularProductQuery);
   return data;
 };
-

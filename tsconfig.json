@@ -29,6 +29,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "src/components/common/PopularBikesCarousel"  ],
   "exclude": ["node_modules"]
 }

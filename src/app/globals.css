@@ -2,14 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   * {
     @apply box-border;
   }
 
   body {
-    @apply font-rajdhani
+    @apply font-rajdhani;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold uppercase;
+  }
+
+  h1 {
+    @apply text-5xl md:text-[80px] leading-none;
+  }
+
+  h2 {
+    @apply text-[40px];
+  }
+
+  h3 {
+    @apply text-[22px];
+  }
+
+  h4 {
+    @apply text-[18px];
+  }
+
+  a {
+    @apply font-bold uppercase hover:text-accent transition-all ease-in-out duration-300 focus-visible:text-accent;
+  }
+
+  .btn {
+    @apply flex justify-center items-center h-[50px] px-8 text-white font-semibold uppercase;
+  }
+
+  .btn-icon {
+    @apply flex justify-center items-center w-[50px] h-[50px] text-2xl text-white;
+  }
+
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-hover transition-all ease-in-out duration-300;
+  }
+
+  .btn-accent {
+    @apply bg-accent hover:bg-accent-hover hover:text-white transition-all ease-in-out duration-300;
+  }
+
+  .btn-white {
+    @apply text-primary bg-white hover:bg-white/90 transition-all ease-in-out duration-300;
+  }
 }

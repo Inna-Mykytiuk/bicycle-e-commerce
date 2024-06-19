@@ -9,7 +9,7 @@ const category = defineType({
       name: 'name',
       title: 'Category Name',
       type: 'string',
-    })
+    }),
   ],
 });
 

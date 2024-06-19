@@ -1,5 +1,5 @@
 import { defineType, defineField } from 'sanity';
-import { PiBicycleBold } from "react-icons/pi";
+import { PiBicycleBold } from 'react-icons/pi';
 
 const product = defineType({
   name: 'product',
@@ -37,7 +37,7 @@ const product = defineType({
       name: 'categories',
       title: 'Categories',
       type: 'array',
-      of: [{ type: 'reference', to: { type: 'category' }}],
+      of: [{ type: 'reference', to: { type: 'category' } }],
     }),
   ],
 });

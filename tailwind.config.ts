@@ -1,14 +1,14 @@
-import type { Config } from "tailwindcss"
+import type { Config } from 'tailwindcss';
 
 const config = {
-  darkMode: ["class"],
+  darkMode: ['class'],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
   ],
-  prefix: "",
+  prefix: '',
   theme: {
     screens: {
       sm: '480px',
@@ -21,9 +21,9 @@ const config = {
       notXL: { max: '1279.98px' },
     },
     extend: {
-    container: {
-      center: true,
-      padding: {
+      container: {
+        center: true,
+        padding: {
           DEFAULT: '1.25rem',
           sm: '1.25rem',
           md: '2rem',
@@ -34,22 +34,33 @@ const config = {
         rajdhani: ['var(--font-rajdhani)'],
       },
       keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+      },
+      colors: {
+        primary: {
+          DEFAULT: '#222222',
+          hover: '#2f2f2f'
+        },
+        accent: {
+          DEFAULT: '#ed1d24',
+          hover: '#d6001c'
+        }
+
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-} satisfies Config
+  plugins: [require('tailwindcss-animate')],
+} satisfies Config;
 
-export default config
+export default config;

@@ -9,14 +9,14 @@ import data from '@/data/common.json';
 export const Socials: React.FC<SocialsProps> = ({ stylesSocials }) => {
   const { socials } = data;
   return (
-    <ul className={`flex gap-4 text-accent ${stylesSocials}`}>
+    <ul className={`text-accent flex gap-4 ${stylesSocials}`}>
       <li>
         <a
           href={socials.telegram.path}
           aria-label={socials.telegram.ariaLabelLink}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="hover:text-hover hover:transition-all focus-visible:text-pressed"
+          className="hover:text-hover focus-visible:text-pressed hover:transition-all"
         >
           <Telegram
             className="h-8 w-8"
@@ -30,7 +30,7 @@ export const Socials: React.FC<SocialsProps> = ({ stylesSocials }) => {
           aria-label={socials.instagram.ariaLabelLink}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="hover:text-hover hover:transition-all focus-visible:text-pressed"
+          className="hover:text-hover focus-visible:text-pressed hover:transition-all"
         >
           <Instagram
             className="h-8 w-8"
@@ -44,7 +44,7 @@ export const Socials: React.FC<SocialsProps> = ({ stylesSocials }) => {
           aria-label={socials.facebook.ariaLabelLink}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="hover:text-hover hover:transition-all focus-visible:text-pressed"
+          className="hover:text-hover focus-visible:text-pressed hover:transition-all"
         >
           <Facebook
             className="h-8 w-8"

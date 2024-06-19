@@ -12,5 +12,3 @@ export const popularProductQuery = groq`*[_type == 'product' && references(*[_ty
     name
     }
 }`;
-
-
