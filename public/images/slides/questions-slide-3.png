@@ -1,0 +1,399 @@
+{"version":3,"file":"index.cjs","sources":["../src/components/list.tsx","../src/components/marks.tsx","../src/warnings.ts","../src/components/unknown.tsx","../src/components/defaults.tsx","../src/components/merge.ts","../src/react-portable-text.tsx"],"sourcesContent":["import type {PortableTextListComponent, PortableTextListItemComponent} from '../types'\n\nexport const defaultLists: Record<'number' | 'bullet', PortableTextListComponent> = {\n  number: ({children}) => <ol>{children}</ol>,\n  bullet: ({children}) => <ul>{children}</ul>,\n}\n\nexport const DefaultListItem: PortableTextListItemComponent = ({children}) => <li>{children}</li>\n","import type {TypedObject} from '@portabletext/types'\n\nimport type {PortableTextMarkComponent} from '../types'\n\ninterface DefaultLink extends TypedObject {\n  _type: 'link'\n  href: string\n}\n\nconst link: PortableTextMarkComponent<DefaultLink> = ({children, value}) => (\n  <a href={value?.href}>{children}</a>\n)\n\nconst underlineStyle = {textDecoration: 'underline'}\n\nexport const defaultMarks: Record<string, PortableTextMarkComponent | undefined> = {\n  em: ({children}) => <em>{children}</em>,\n  strong: ({children}) => <strong>{children}</strong>,\n  code: ({children}) => <code>{children}</code>,\n  underline: ({children}) => <span style={underlineStyle}>{children}</span>,\n  'strike-through': ({children}) => <del>{children}</del>,\n  link,\n}\n","const getTemplate = (type: string, prop: string): string =>\n  `[@portabletext/react] Unknown ${type}, specify a component for it in the \\`components.${prop}\\` prop`\n\nexport const unknownTypeWarning = (typeName: string): string =>\n  getTemplate(`block type \"${typeName}\"`, 'types')\n\nexport const unknownMarkWarning = (markType: string): string =>\n  getTemplate(`mark type \"${markType}\"`, 'marks')\n\nexport const unknownBlockStyleWarning = (blockStyle: string): string =>\n  getTemplate(`block style \"${blockStyle}\"`, 'block')\n\nexport const unknownListStyleWarning = (listStyle: string): string =>\n  getTemplate(`list style \"${listStyle}\"`, 'list')\n\nexport const unknownListItemStyleWarning = (listStyle: string): string =>\n  getTemplate(`list item style \"${listStyle}\"`, 'listItem')\n\nexport function printWarning(message: string): void {\n  console.warn(message)\n}\n","import type {PortableTextReactComponents} from '../types'\nimport {unknownTypeWarning} from '../warnings'\n\nconst hidden = {display: 'none'}\n\nexport const DefaultUnknownType: PortableTextReactComponents['unknownType'] = ({\n  value,\n  isInline,\n}) => {\n  const warning = unknownTypeWarning(value._type)\n  return isInline ? <span style={hidden}>{warning}</span> : <div style={hidden}>{warning}</div>\n}\n\nexport const DefaultUnknownMark: PortableTextReactComponents['unknownMark'] = ({\n  markType,\n  children,\n}) => {\n  return <span className={`unknown__pt__mark__${markType}`}>{children}</span>\n}\n\nexport const DefaultUnknownBlockStyle: PortableTextReactComponents['unknownBlockStyle'] = ({\n  children,\n}) => {\n  return <p>{children}</p>\n}\n\nexport const DefaultUnknownList: PortableTextReactComponents['unknownList'] = ({children}) => {\n  return <ul>{children}</ul>\n}\n\nexport const DefaultUnknownListItem: PortableTextReactComponents['unknownListItem'] = ({\n  children,\n}) => {\n  return <li>{children}</li>\n}\n","import type {PortableTextBlockStyle} from '@portabletext/types'\n\nimport type {PortableTextBlockComponent, PortableTextReactComponents} from '../types'\nimport {DefaultListItem, defaultLists} from './list'\nimport {defaultMarks} from './marks'\nimport {\n  DefaultUnknownBlockStyle,\n  DefaultUnknownList,\n  DefaultUnknownListItem,\n  DefaultUnknownMark,\n  DefaultUnknownType,\n} from './unknown'\n\nexport const DefaultHardBreak = (): JSX.Element => <br />\n\nexport const defaultBlockStyles: Record<\n  PortableTextBlockStyle,\n  PortableTextBlockComponent | undefined\n> = {\n  normal: ({children}) => <p>{children}</p>,\n  blockquote: ({children}) => <blockquote>{children}</blockquote>,\n  h1: ({children}) => <h1>{children}</h1>,\n  h2: ({children}) => <h2>{children}</h2>,\n  h3: ({children}) => <h3>{children}</h3>,\n  h4: ({children}) => <h4>{children}</h4>,\n  h5: ({children}) => <h5>{children}</h5>,\n  h6: ({children}) => <h6>{children}</h6>,\n}\n\nexport const defaultComponents: PortableTextReactComponents = {\n  types: {},\n\n  block: defaultBlockStyles,\n  marks: defaultMarks,\n  list: defaultLists,\n  listItem: DefaultListItem,\n  hardBreak: DefaultHardBreak,\n\n  unknownType: DefaultUnknownType,\n  unknownMark: DefaultUnknownMark,\n  unknownList: DefaultUnknownList,\n  unknownListItem: DefaultUnknownListItem,\n  unknownBlockStyle: DefaultUnknownBlockStyle,\n}\n","import type {PortableTextComponents, PortableTextReactComponents} from '../types'\n\nexport function mergeComponents(\n  parent: PortableTextReactComponents,\n  overrides: PortableTextComponents,\n): PortableTextReactComponents {\n  // eslint-disable-next-line @typescript-eslint/no-unused-vars\n  const {block, list, listItem, marks, types, ...rest} = overrides\n  // @todo figure out how to not `as ...` these\n  return {\n    ...parent,\n    block: mergeDeeply(parent, overrides, 'block') as PortableTextReactComponents['block'],\n    list: mergeDeeply(parent, overrides, 'list') as PortableTextReactComponents['list'],\n    listItem: mergeDeeply(parent, overrides, 'listItem') as PortableTextReactComponents['listItem'],\n    marks: mergeDeeply(parent, overrides, 'marks') as PortableTextReactComponents['marks'],\n    types: mergeDeeply(parent, overrides, 'types') as PortableTextReactComponents['types'],\n    ...rest,\n  }\n}\n\nfunction mergeDeeply(\n  parent: PortableTextReactComponents,\n  overrides: PortableTextComponents,\n  key: 'block' | 'list' | 'listItem' | 'marks' | 'types',\n): PortableTextReactComponents[typeof key] {\n  const override = overrides[key]\n  const parentVal = parent[key]\n\n  if (typeof override === 'function') {\n    return override\n  }\n\n  if (override && typeof parentVal === 'function') {\n    return override\n  }\n\n  if (override) {\n    return {...parentVal, ...override} as PortableTextReactComponents[typeof key]\n  }\n\n  return parentVal\n}\n","import type {ToolkitNestedPortableTextSpan, ToolkitTextNode} from '@portabletext/toolkit'\nimport {\n  buildMarksTree,\n  isPortableTextBlock,\n  isPortableTextListItemBlock,\n  isPortableTextToolkitList,\n  isPortableTextToolkitSpan,\n  isPortableTextToolkitTextNode,\n  LIST_NEST_MODE_HTML,\n  nestLists,\n  spanToPlainText,\n} from '@portabletext/toolkit'\nimport type {\n  PortableTextBlock,\n  PortableTextListItemBlock,\n  PortableTextMarkDefinition,\n  PortableTextSpan,\n  TypedObject,\n} from '@portabletext/types'\nimport {type ReactNode, useMemo} from 'react'\n\nimport {defaultComponents} from './components/defaults'\nimport {mergeComponents} from './components/merge'\nimport type {\n  MissingComponentHandler,\n  NodeRenderer,\n  PortableTextProps,\n  PortableTextReactComponents,\n  ReactPortableTextList,\n  Serializable,\n  SerializedBlock,\n} from './types'\nimport {\n  printWarning,\n  unknownBlockStyleWarning,\n  unknownListItemStyleWarning,\n  unknownListStyleWarning,\n  unknownMarkWarning,\n  unknownTypeWarning,\n} from './warnings'\n\nexport function PortableText<B extends TypedObject = PortableTextBlock>({\n  value: input,\n  components: componentOverrides,\n  listNestingMode,\n  onMissingComponent: missingComponentHandler = printWarning,\n}: PortableTextProps<B>): JSX.Element {\n  const handleMissingComponent = missingComponentHandler || noop\n  const blocks = Array.isArray(input) ? input : [input]\n  const nested = nestLists(blocks, listNestingMode || LIST_NEST_MODE_HTML)\n\n  const components = useMemo(() => {\n    return componentOverrides\n      ? mergeComponents(defaultComponents, componentOverrides)\n      : defaultComponents\n  }, [componentOverrides])\n\n  const renderNode = useMemo(\n    () => getNodeRenderer(components, handleMissingComponent),\n    [components, handleMissingComponent],\n  )\n  const rendered = nested.map((node, index) =>\n    renderNode({node: node, index, isInline: false, renderNode}),\n  )\n\n  return <>{rendered}</>\n}\n\nconst getNodeRenderer = (\n  components: PortableTextReactComponents,\n  handleMissingComponent: MissingComponentHandler,\n): NodeRenderer => {\n  function renderNode<N extends TypedObject>(options: Serializable<N>): ReactNode {\n    const {node, index, isInline} = options\n    const key = node._key || `node-${index}`\n\n    if (isPortableTextToolkitList(node)) {\n      return renderList(node, index, key)\n    }\n\n    if (isPortableTextListItemBlock(node)) {\n      return renderListItem(node, index, key)\n    }\n\n    if (isPortableTextToolkitSpan(node)) {\n      return renderSpan(node, index, key)\n    }\n\n    if (hasCustomComponentForNode(node)) {\n      return renderCustomBlock(node, index, key, isInline)\n    }\n\n    if (isPortableTextBlock(node)) {\n      return renderBlock(node, index, key, isInline)\n    }\n\n    if (isPortableTextToolkitTextNode(node)) {\n      return renderText(node, key)\n    }\n\n    return renderUnknownType(node, index, key, isInline)\n  }\n\n  function hasCustomComponentForNode(node: TypedObject): boolean {\n    return node._type in components.types\n  }\n\n  /* eslint-disable react/jsx-no-bind */\n  function renderListItem(\n    node: PortableTextListItemBlock<PortableTextMarkDefinition, PortableTextSpan>,\n    index: number,\n    key: string,\n  ) {\n    const tree = serializeBlock({node, index, isInline: false, renderNode})\n    const renderer = components.listItem\n    const handler = typeof renderer === 'function' ? renderer : renderer[node.listItem]\n    const Li = handler || components.unknownListItem\n\n    if (Li === components.unknownListItem) {\n      const style = node.listItem || 'bullet'\n      handleMissingComponent(unknownListItemStyleWarning(style), {\n        type: style,\n        nodeType: 'listItemStyle',\n      })\n    }\n\n    let children = tree.children\n    if (node.style && node.style !== 'normal') {\n      // Wrap any other style in whatever the block serializer says to use\n      // eslint-disable-next-line @typescript-eslint/no-unused-vars\n      const {listItem, ...blockNode} = node\n      children = renderNode({node: blockNode, index, isInline: false, renderNode})\n    }\n\n    return (\n      <Li key={key} value={node} index={index} isInline={false} renderNode={renderNode}>\n        {children}\n      </Li>\n    )\n  }\n\n  function renderList(node: ReactPortableTextList, index: number, key: string) {\n    const children = node.children.map((child, childIndex) =>\n      renderNode({\n        node: child._key ? child : {...child, _key: `li-${index}-${childIndex}`},\n        index: childIndex,\n        isInline: false,\n        renderNode,\n      }),\n    )\n\n    const component = components.list\n    const handler = typeof component === 'function' ? component : component[node.listItem]\n    const List = handler || components.unknownList\n\n    if (List === components.unknownList) {\n      const style = node.listItem || 'bullet'\n      handleMissingComponent(unknownListStyleWarning(style), {nodeType: 'listStyle', type: style})\n    }\n\n    return (\n      <List key={key} value={node} index={index} isInline={false} renderNode={renderNode}>\n        {children}\n      </List>\n    )\n  }\n\n  function renderSpan(node: ToolkitNestedPortableTextSpan, _index: number, key: string) {\n    const {markDef, markType, markKey} = node\n    const Span = components.marks[markType] || components.unknownMark\n    const children = node.children.map((child, childIndex) =>\n      renderNode({node: child, index: childIndex, isInline: true, renderNode}),\n    )\n\n    if (Span === components.unknownMark) {\n      handleMissingComponent(unknownMarkWarning(markType), {nodeType: 'mark', type: markType})\n    }\n\n    return (\n      <Span\n        key={key}\n        text={spanToPlainText(node)}\n        value={markDef}\n        markType={markType}\n        markKey={markKey}\n        renderNode={renderNode}\n      >\n        {children}\n      </Span>\n    )\n  }\n\n  function renderBlock(node: PortableTextBlock, index: number, key: string, isInline: boolean) {\n    // eslint-disable-next-line @typescript-eslint/no-unused-vars\n    const {_key, ...props} = serializeBlock({node, index, isInline, renderNode})\n    const style = props.node.style || 'normal'\n    const handler =\n      typeof components.block === 'function' ? components.block : components.block[style]\n    const Block = handler || components.unknownBlockStyle\n\n    if (Block === components.unknownBlockStyle) {\n      handleMissingComponent(unknownBlockStyleWarning(style), {\n        nodeType: 'blockStyle',\n        type: style,\n      })\n    }\n\n    return <Block key={key} {...props} value={props.node} renderNode={renderNode} />\n  }\n\n  function renderText(node: ToolkitTextNode, key: string) {\n    if (node.text === '\\n') {\n      const HardBreak = components.hardBreak\n      return HardBreak ? <HardBreak key={key} /> : '\\n'\n    }\n\n    return node.text\n  }\n\n  function renderUnknownType(node: TypedObject, index: number, key: string, isInline: boolean) {\n    const nodeOptions = {\n      value: node,\n      isInline,\n      index,\n      renderNode,\n    }\n\n    handleMissingComponent(unknownTypeWarning(node._type), {nodeType: 'block', type: node._type})\n\n    const UnknownType = components.unknownType\n    return <UnknownType key={key} {...nodeOptions} />\n  }\n\n  function renderCustomBlock(node: TypedObject, index: number, key: string, isInline: boolean) {\n    const nodeOptions = {\n      value: node,\n      isInline,\n      index,\n      renderNode,\n    }\n\n    const Node = components.types[node._type]\n    return Node ? <Node key={key} {...nodeOptions} /> : null\n  }\n  /* eslint-enable react/jsx-no-bind */\n\n  return renderNode\n}\n\nfunction serializeBlock(options: Serializable<PortableTextBlock>): SerializedBlock {\n  const {node, index, isInline, renderNode} = options\n  const tree = buildMarksTree(node)\n  const children = tree.map((child, i) =>\n    renderNode({node: child, isInline: true, index: i, renderNode}),\n  )\n\n  return {\n    _key: node._key || `block-${index}`,\n    children,\n    index,\n    isInline,\n    node,\n  }\n}\n\nfunction noop() {\n  // Intentional noop\n}\n"],"names":["defaultLists","number","children","jsx","bullet","DefaultListItem","link","value","href","underlineStyle","textDecoration","defaultMarks","em","strong","code","underline","style","strike-through","getTemplate","type","prop","unknownTypeWarning","typeName","unknownMarkWarning","markType","unknownBlockStyleWarning","blockStyle","unknownListStyleWarning","listStyle","unknownListItemStyleWarning","printWarning","message","console","warn","hidden","display","DefaultUnknownType","isInline","warning","_type","DefaultUnknownMark","className","DefaultUnknownBlockStyle","DefaultUnknownList","DefaultUnknownListItem","DefaultHardBreak","defaultBlockStyles","normal","blockquote","h1","h2","h3","h4","h5","h6","defaultComponents","types","block","marks","list","listItem","hardBreak","unknownType","unknownMark","unknownList","unknownListItem","unknownBlockStyle","mergeComponents","parent","overrides","rest","_excluded","_objectSpread","mergeDeeply","key","override","parentVal","PortableText","input","components","componentOverrides","listNestingMode","onMissingComponent","missingComponentHandler","handleMissingComponent","noop","blocks","Array","isArray","nested","nestLists","LIST_NEST_MODE_HTML","useMemo","renderNode","getNodeRenderer","rendered","map","node","index","options","_key","isPortableTextToolkitList","renderList","isPortableTextListItemBlock","renderListItem","isPortableTextToolkitSpan","renderSpan","hasCustomComponentForNode","renderCustomBlock","isPortableTextBlock","renderBlock","isPortableTextToolkitTextNode","renderText","renderUnknownType","tree","serializeBlock","renderer","Li","nodeType","blockNode","_objectWithoutProperties","_excluded2","jsxRuntime","child","childIndex","component","List","_index","markDef","markKey","Span","text","spanToPlainText","_serializeBlock","props","_excluded3","Block","HardBreak","nodeOptions","UnknownType","Node","buildMarksTree","i"ypes[seqIndices$1[si$10]] & BN_LIKE_TYPES)) {
+                      if (getBidiCharType(string[seqIndices$1[si$10]]) & TYPE_NSM) {
+                        charTypes[seqIndices$1[si$10]] = useStrongType;
+                      }
+                      break
+                    }
+                  }
+                }
+                if (useStrongType !== embedDirection) {
+                  for (var si$11 = closeSeqIdx + 1; si$11 < seqIndices$1.length; si$11++) {
+                    if (!(charTypes[seqIndices$1[si$11]] & BN_LIKE_TYPES)) {
+                      if (getBidiCharType(string[seqIndices$1[si$11]]) & TYPE_NSM) {
+                        charTypes[seqIndices$1[si$11]] = useStrongType;
+                      }
+                      break
+                    }
+                  }
+                }
+              }
+            }
+
+            // N1. A sequence of NIs takes the direction of the surrounding strong text if the text on both sides has the
+            // same direction.
+            // N2. Any remaining NIs take the embedding direction.
+            for (var si$12 = 0; si$12 < seqIndices$1.length; si$12++) {
+              if (charTypes[seqIndices$1[si$12]] & NEUTRAL_ISOLATE_TYPES) {
+                var niRunStart = si$12, niRunEnd = si$12;
+                var prevType$2 = sosType; //si === 0 ? sosType : (charTypes[seqIndices[si - 1]] & R_TYPES_FOR_N_STEPS) ? TYPE_R : TYPE_L
+                for (var si2 = si$12 - 1; si2 >= 0; si2--) {
+                  if (charTypes[seqIndices$1[si2]] & BN_LIKE_TYPES) {
+                    niRunStart = si2; //5.2 treat BNs adjacent to NIs as NIs
+                  } else {
+                    prevType$2 = (charTypes[seqIndices$1[si2]] & R_TYPES_FOR_N_STEPS) ? TYPE_R : TYPE_L;
+                    break
+                  }
+                }
+                var nextType$1 = eosType;
+                for (var si2$1 = si$12 + 1; si2$1 < seqIndices$1.length; si2$1++) {
+                  if (charTypes[seqIndices$1[si2$1]] & (NEUTRAL_ISOLATE_TYPES | BN_LIKE_TYPES)) {
+                    niRunEnd = si2$1;
+                  } else {
+                    nextType$1 = (charTypes[seqIndices$1[si2$1]] & R_TYPES_FOR_N_STEPS) ? TYPE_R : TYPE_L;
+                    break
+                  }
+                }
+                for (var sj$7 = niRunStart; sj$7 <= niRunEnd; sj$7++) {
+                  charTypes[seqIndices$1[sj$7]] = prevType$2 === nextType$1 ? prevType$2 : embedDirection;
+                }
+                si$12 = niRunEnd;
+              }
+            }
+          }
+        }
+
+        // === 3.3.6 Resolving Implicit Levels ===
+
+        for (var i$17 = paragraph.start; i$17 <= paragraph.end; i$17++) {
+          var level$3 = embedLevels[i$17];
+          var type$1 = charTypes[i$17];
+          // I2. For all characters with an odd (right-to-left) embedding level, those of type L, EN or AN go up one level.
+          if (level$3 & 1) {
+            if (type$1 & (TYPE_L | TYPE_EN | TYPE_AN)) {
+              embedLevels[i$17]++;
+            }
+          }
+            // I1. For all characters with an even (left-to-right) embedding level, those of type R go up one level
+          // and those of type AN or EN go up two levels.
+          else {
+            if (type$1 & TYPE_R) {
+              embedLevels[i$17]++;
+            } else if (type$1 & (TYPE_AN | TYPE_EN)) {
+              embedLevels[i$17] += 2;
+            }
+          }
+
+          // 5.2: Resolve any LRE, RLE, LRO, RLO, PDF, or BN to the level of the preceding character if there is one,
+          // and otherwise to the base level.
+          if (type$1 & BN_LIKE_TYPES) {
+            embedLevels[i$17] = i$17 === 0 ? paragraph.level : embedLevels[i$17 - 1];
+          }
+
+          // 3.4 L1.1-4: Reset the embedding level of segment/paragraph separators, and any sequence of whitespace or
+          // isolate formatting characters preceding them or the end of the paragraph, to the paragraph level.
+          // NOTE: this will also need to be applied to each individual line ending after line wrapping occurs.
+          if (i$17 === paragraph.end || getBidiCharType(string[i$17]) & (TYPE_S | TYPE_B)) {
+            for (var j$1 = i$17; j$1 >= 0 && (getBidiCharType(string[j$1]) & TRAILING_TYPES); j$1--) {
+              embedLevels[j$1] = paragraph.level;
+            }
+          }
+        }
+      }
+
+      // DONE! The resolved levels can then be used, after line wrapping, to flip runs of characters
+      // according to section 3.4 Reordering Resolved Levels
+      return {
+        levels: embedLevels,
+        paragraphs: paragraphs
+      }
+
+      function determineAutoEmbedLevel (start, isFSI) {
+        // 3.3.1 P2 - P3
+        for (var i = start; i < string.length; i++) {
+          var charType = charTypes[i];
+          if (charType & (TYPE_R | TYPE_AL)) {
+            return 1
+          }
+          if ((charType & (TYPE_B | TYPE_L)) || (isFSI && charType === TYPE_PDI)) {
+            return 0
+          }
+          if (charType & ISOLATE_INIT_TYPES) {
+            var pdi = indexOfMatchingPDI(i);
+            i = pdi === -1 ? string.length : pdi;
+          }
+        }
+        return 0
+      }
+
+      function indexOfMatchingPDI (isolateStart) {
+        // 3.1.2 BD9
+        var isolationLevel = 1;
+        for (var i = isolateStart + 1; i < string.length; i++) {
+          var charType = charTypes[i];
+          if (charType & TYPE_B) {
+            break
+          }
+          if (charType & TYPE_PDI) {
+            if (--isolationLevel === 0) {
+              return i
+            }
+          } else if (charType & ISOLATE_INIT_TYPES) {
+            isolationLevel++;
+          }
+        }
+        return -1
+      }
+    }
+
+    // Bidi mirrored chars data, auto generated
+    var data = "14>1,j>2,t>2,u>2,1a>g,2v3>1,1>1,1ge>1,1wd>1,b>1,1j>1,f>1,ai>3,-2>3,+1,8>1k0,-1jq>1y7,-1y6>1hf,-1he>1h6,-1h5>1ha,-1h8>1qi,-1pu>1,6>3u,-3s>7,6>1,1>1,f>1,1>1,+2,3>1,1>1,+13,4>1,1>1,6>1eo,-1ee>1,3>1mg,-1me>1mk,-1mj>1mi,-1mg>1mi,-1md>1,1>1,+2,1>10k,-103>1,1>1,4>1,5>1,1>1,+10,3>1,1>8,-7>8,+1,-6>7,+1,a>1,1>1,u>1,u6>1,1>1,+5,26>1,1>1,2>1,2>2,8>1,7>1,4>1,1>1,+5,b8>1,1>1,+3,1>3,-2>1,2>1,1>1,+2,c>1,3>1,1>1,+2,h>1,3>1,a>1,1>1,2>1,3>1,1>1,d>1,f>1,3>1,1a>1,1>1,6>1,7>1,13>1,k>1,1>1,+19,4>1,1>1,+2,2>1,1>1,+18,m>1,a>1,1>1,lk>1,1>1,4>1,2>1,f>1,3>1,1>1,+3,db>1,1>1,+3,3>1,1>1,+2,14qm>1,1>1,+1,6>1,4j>1,j>2,t>2,u>2,2>1,+1";
+
+    var mirrorMap;
+
+    function parse () {
+      if (!mirrorMap) {
+        //const start = performance.now()
+        var ref = parseCharacterMap(data, true);
+        var map = ref.map;
+        var reverseMap = ref.reverseMap;
+        // Combine both maps into one
+        reverseMap.forEach(function (value, key) {
+          map.set(key, value);
+        });
+        mirrorMap = map;
+        //console.log(`mirrored chars parsed in ${performance.now() - start}ms`)
+      }
+    }
+
+    function getMirroredCharacter (char) {
+      parse();
+      return mirrorMap.get(char) || null
+    }
+
+    /**
+     * Given a string and its resolved embedding levels, build a map of indices to replacement chars
+     * for any characters in right-to-left segments that have defined mirrored characters.
+     * @param string
+     * @param embeddingLevels
+     * @param [start]
+     * @param [end]
+     * @return {Map<number, string>}
+     */
+    function getMirroredCharactersMap(string, embeddingLevels, start, end) {
+      var strLen = string.length;
+      start = Math.max(0, start == null ? 0 : +start);
+      end = Math.min(strLen - 1, end == null ? strLen - 1 : +end);
+
+      var map = new Map();
+      for (var i = start; i <= end; i++) {
+        if (embeddingLevels[i] & 1) { //only odd (rtl) levels
+          var mirror = getMirroredCharacter(string[i]);
+          if (mirror !== null) {
+            map.set(i, mirror);
+          }
+        }
+      }
+      return map
+    }
+
+    /**
+     * Given a start and end denoting a single line within a string, and a set of precalculated
+     * bidi embedding levels, produce a list of segments whose ordering should be flipped, in sequence.
+     * @param {string} string - the full input string
+     * @param {GetEmbeddingLevelsResult} embeddingLevelsResult - the result object from getEmbeddingLevels
+     * @param {number} [start] - first character in a subset of the full string
+     * @param {number} [end] - last character in a subset of the full string
+     * @return {number[][]} - the list of start/end segments that should be flipped, in order.
+     */
+    function getReorderSegments(string, embeddingLevelsResult, start, end) {
+      var strLen = string.length;
+      start = Math.max(0, start == null ? 0 : +start);
+      end = Math.min(strLen - 1, end == null ? strLen - 1 : +end);
+
+      var segments = [];
+      embeddingLevelsResult.paragraphs.forEach(function (paragraph) {
+        var lineStart = Math.max(start, paragraph.start);
+        var lineEnd = Math.min(end, paragraph.end);
+        if (lineStart < lineEnd) {
+          // Local slice for mutation
+          var lineLevels = embeddingLevelsResult.levels.slice(lineStart, lineEnd + 1);
+
+          // 3.4 L1.4: Reset any sequence of whitespace characters and/or isolate formatting characters at the
+          // end of the line to the paragraph level.
+          for (var i = lineEnd; i >= lineStart && (getBidiCharType(string[i]) & TRAILING_TYPES); i--) {
+            lineLevels[i] = paragraph.level;
+          }
+
+          // L2. From the highest level found in the text to the lowest odd level on each line, including intermediate levels
+          // not actually present in the text, reverse any contiguous sequence of characters that are at that level or higher.
+          var maxLevel = paragraph.level;
+          var minOddLevel = Infinity;
+          for (var i$1 = 0; i$1 < lineLevels.length; i$1++) {
+            var level = lineLevels[i$1];
+            if (level > maxLevel) { maxLevel = level; }
+            if (level < minOddLevel) { minOddLevel = level | 1; }
+          }
+          for (var lvl = maxLevel; lvl >= minOddLevel; lvl--) {
+            for (var i$2 = 0; i$2 < lineLevels.length; i$2++) {
+              if (lineLevels[i$2] >= lvl) {
+                var segStart = i$2;
+                while (i$2 + 1 < lineLevels.length && lineLevels[i$2 + 1] >= lvl) {
+                  i$2++;
+                }
+                if (i$2 > segStart) {
+                  segments.push([segStart + lineStart, i$2 + lineStart]);
+                }
+              }
+            }
+          }
+        }
+      });
+      return segments
+    }
+
+    /**
+     * @param {string} string
+     * @param {GetEmbeddingLevelsResult} embedLevelsResult
+     * @param {number} [start]
+     * @param {number} [end]
+     * @return {string} the new string with bidi segments reordered
+     */
+    function getReorderedString(string, embedLevelsResult, start, end) {
+      var indices = getReorderedIndices(string, embedLevelsResult, start, end);
+      var chars = [].concat( string );
+      indices.forEach(function (charIndex, i) {
+        chars[i] = (
+          (embedLevelsResult.levels[charIndex] & 1) ? getMirroredCharacter(string[charIndex]) : null
+        ) || string[charIndex];
+      });
+      return chars.join('')
+    }
+
+    /**
+     * @param {string} string
+     * @param {GetEmbeddingLevelsResult} embedLevelsResult
+     * @param {number} [start]
+     * @param {number} [end]
+     * @return {number[]} an array with character indices in their new bidi order
+     */
+    function getReorderedIndices(string, embedLevelsResult, start, end) {
+      var segments = getReorderSegments(string, embedLevelsResult, start, end);
+      // Fill an array with indices
+      var indices = [];
+      for (var i = 0; i < string.length; i++) {
+        indices[i] = i;
+      }
+      // Reverse each segment in order
+      segments.forEach(function (ref) {
+        var start = ref[0];
+        var end = ref[1];
+
+        var slice = indices.slice(start, end + 1);
+        for (var i = slice.length; i--;) {
+          indices[end - i] = slice[i];
+        }
+      });
+      return indices
+    }
+
+    exports.closingToOpeningBracket = closingToOpeningBracket;
+    exports.getBidiCharType = getBidiCharType;
+    exports.getBidiCharTypeName = getBidiCharTypeName;
+    exports.getCanonicalBracket = getCanonicalBracket;
+    exports.getEmbeddingLevels = getEmbeddingLevels;
+    exports.getMirroredCharacter = getMirroredCharacter;
+    exports.getMirroredCharactersMap = getMirroredCharactersMap;
+    exports.getReorderSegments = getReorderSegments;
+    exports.getReorderedIndices = getReorderedIndices;
+    exports.getReorderedString = getReorderedString;
+    exports.openingToClosingBracket = openingToClosingBracket;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
+    return exports;
+
+  }({}));
+  return bidi}
+
+  return bidiFactory;
+
+})));
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     {
+    "name": "speakingurl",
+    "version": "14.0.1",
+    "description": "Generate a slug – transliteration with a lot of options",
+    "homepage": "http://pid.github.io/speakingurl/",
+    "github": "http://github.com/pid/speakingurl",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pid/speakingurl.git"
+    },
+    "bugs": {
+        "url": "https://github.com/pid/speakingurl/issues"
+    },
+    "license": "BSD-3-Clause",
+    "licenses": [{
+        "type": "BSD",
+        "url": "https://raw.github.com/pid/speakingurl/master/LICENSE"
+    }],
+    "keywords": [
+        "slug",
+        "slugify",
+        "speakingurl",
+        "transliteration",
+        "permalink",
+        "seo",
+        "url",
+        "nice url",
+        "static url",
+        "clean url",
+        "pretty url",
+        "nice looking url",
+        "user friendly url",
+        "seo friendly url"
+    ],
+    "categories": [
+        "Utilities",
+        "Parsers & Compilers"
+    ],
+    "scripts": {
+        "test": "mocha"
+    },
+    "author": "Sascha Droste <pid@posteo.net> (https://twitter.com/SaschaDroste)",
+    "main": "index",
+    "filename": "speakingurl.min.js",
+    "dependencies": {},
+    "devDependencies": {
+        "gulp": "^3.8.8",
+        "gulp-bump": "^2.4.0",
+        "gulp-header": "^1.2.2",
+        "gulp-jsbeautifier": "^2.0.3",
+        "gulp-jshint": "^2.0.0",
+        "gulp-load-plugins": "^1.1.0",
+        "gulp-mocha": "^4.3.1",
+        "gulp-rename": "^1.2.0",
+        "gulp-replace": "^0.6.1",
+        "gulp-uglify": "^3.0.0",
+        "jshint": "^2.8.0",
+        "jshint-stylish": "^2.0.0",
+        "minimist": "^1.1.0",
+        "mocha": "^3.0.2",
+        "should": "^11.1.0"
+    },
+    "jam": {
+        "dependencies": {},
+        "main": "speakingurl.min.js",
+        "shim": {
+            "deps": [],
+            "exports": [
+                "getSlug",
+                "createSlug"
+            ]
+        },
+        "include": [
+            "speakingurl.min.js",
+            "README.md"
+        ]
+    },
+    "volo": {
+        "url": "//cdnjs.cloudflare.com/ajax/libs/speakingurl/{version}/speakingurl.min.js"
+    },
+    "engines": {
+        "node": ">=0.10.0"
+    },
+    "directories": {
+        "example": "examples",
+        "lib": "lib",
+        "test": "test"
+    }
+}                                                                                                                                                                                       
