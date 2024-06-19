@@ -1,9 +1,9 @@
-import { Hero } from '@/sections/Hero';
+import PopularBikes from '@/components/common/PopularBikes/PopularBikes';
 
 export default function Home() {
   return (
     <>
-      <Hero />
+      <PopularBikes />
     </>
   );
 }

@@ -1,9 +1,11 @@
 import { defineType, defineField } from 'sanity';
+import { PiBicycleBold } from "react-icons/pi";
 
 const product = defineType({
   name: 'product',
   title: 'Product',
   type: 'document',
+  icon: PiBicycleBold,
   fields: [
     defineField({
       name: 'name',
@@ -30,6 +32,12 @@ const product = defineType({
       title: 'Product Images',
       type: 'array',
       of: [{ type: 'image' }],
+    }),
+    defineField({
+      name: 'categories',
+      title: 'Categories',
+      type: 'array',
+      of: [{ type: 'reference', to: { type: 'category' }}],
     }),
   ],
 });
