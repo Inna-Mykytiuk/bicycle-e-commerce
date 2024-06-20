@@ -13,7 +13,6 @@ const PopularBikes = async () => {
         <p className="mb-[30px] text-center">
           The World&apos;s Premium Brands In One Destination
         </p>
-        <div>Carousel</div>
         <PopularBikesCarousel bikes={bikes} />
         <Link
           href="/our-bikes"

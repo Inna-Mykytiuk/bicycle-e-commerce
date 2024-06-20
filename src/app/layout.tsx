@@ -3,8 +3,10 @@ import type { Metadata } from 'next';
 import { Rajdhani } from 'next/font/google';
 
 import { classnames } from '@/utils/classnames';
-import { Footer } from '@/layout/Footer';
-import { Header } from '@/layout/Header';
+import CartProvider from '@/components/common/CartProvider/CartProvider';
+import { Footer } from '@/components/common/Footer';
+import { Header } from '@/components/common/Header';
+import { Toaster } from '@/components/ui/toaster';
 
 const rajdhani = Rajdhani({
   subsets: ['latin'],
@@ -31,9 +33,13 @@ export default function RootLayout({
           'flex h-full min-h-screen flex-col ',
         )}
       >
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+        <CartProvider>
+          <Header />
+          {children}
+          <Toaster />
+          <Footer />
+          <div className="h-[2000px]"></div>
+        </CartProvider>
       </body>
     </html>
   );

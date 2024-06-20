@@ -42,6 +42,12 @@ const Bike: React.FC<BikeProps> = ({ bike }) => {
         {/*buttons group*/}
         <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center gap-[10px] opacity-0 transition-all duration-300 ease-in-out group-hover:opacity-100">
           <AddToCartBtn
+            id={bike._id}
+            name={bike.name}
+            currency="USD"
+            description={bike.description}
+            images={bike.images}
+            price={bike.price}
             btnStyles="btn-icon btn-accent"
             icon={<CgShoppingBag />}
           />
