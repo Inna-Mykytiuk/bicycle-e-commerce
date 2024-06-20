@@ -16,7 +16,7 @@ export const Logo: React.FC<LogoProps> = ({ path, onClick, stylesLogo }) => {
       href="/"
       aria-label={logo.ariaLabel}
       onClick={onClick}
-      className={`font-italic font-tenor text-accent hover:text-hover focus-visible:text-pressed inline-block font-normal hover:transition-all ${stylesLogo}  ${imgSizes}`}
+      className={`font-italic font-tenor hover:text-hover focus-visible:text-pressed inline-block font-normal text-accent hover:transition-all ${stylesLogo}  ${imgSizes}`}
     >
       {logo.label}
     </Link>

@@ -9,7 +9,7 @@ import data from '@/data/common.json';
 export const Socials: React.FC<SocialsProps> = ({ stylesSocials }) => {
   const { socials } = data;
   return (
-    <ul className={`text-accent flex gap-4 ${stylesSocials}`}>
+    <ul className={`flex gap-4 text-accent ${stylesSocials}`}>
       <li>
         <a
           href={socials.telegram.path}

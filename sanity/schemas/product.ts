@@ -34,6 +34,14 @@ const product = defineType({
       of: [{ type: 'image' }],
     }),
     defineField({
+      name: 'slug',
+      title: 'Product Slug',
+      type: 'slug',
+      options: {
+        source: 'name',
+      },
+    }),
+    defineField({
       name: 'categories',
       title: 'Categories',
       type: 'array',

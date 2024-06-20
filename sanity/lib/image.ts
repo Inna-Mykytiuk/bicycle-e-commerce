@@ -26,13 +26,11 @@ export const urlForImage = (source: Image | string) => {
   if (typeof source === 'string') {
     return source; // Return directly if source is a string URL
   }
-  
+
   // Ensure imageBuilder is defined before accessing its methods
   if (imageBuilder) {
     return imageBuilder.image(source).auto('format').fit('max').url() || ''; // Return URL or empty string if undefined
   }
-  
+
   return ''; // Return empty string if imageBuilder is undefined
 };
-
-
