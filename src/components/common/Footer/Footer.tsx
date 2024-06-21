@@ -24,12 +24,12 @@ export const Footer = () => {
         {/*form*/}
         <form className="mx-auto mb-10 flex max-w-[620px] flex-col gap-5 md:flex-row">
           <Input placeholder="Your email address" />
-          <button className="btn btn-accent h-[60px] w-full md:max-w-[150px]">
+          <button className="btn btn-accent h-[50px] w-full md:max-w-[150px]">
             Join
           </button>
         </form>
         {/*socials*/}
-        <div className="mx-auto mb-20 flex gap-8 text-[20px] text-white/60">
+        <div className="mx-auto mb-12 flex justify-center gap-8 text-[20px] text-white/60">
           <Link href="">
             <RiYoutubeFill />
           </Link>

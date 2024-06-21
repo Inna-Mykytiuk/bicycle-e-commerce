@@ -4,12 +4,8 @@ import BikeCategories from '@/components/common/BikeCategories/BikeCategories';
 
 const OurBikes = async () => {
   const bikes = await getAllProducts();
-  // console.log(bikes);
-  return (
-    <div>
-      <BikeCategories bikes={bikes} />
-    </div>
-  );
+
+  return <BikeCategories bikes={bikes} />;
 };
 
 export default OurBikes;

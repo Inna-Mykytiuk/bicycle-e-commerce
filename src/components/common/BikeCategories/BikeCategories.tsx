@@ -29,9 +29,9 @@ const BikeCategories: React.FC<BikeCategoriesProps> = ({ bikes }) => {
   return (
     <section className="min-h-[1200px] py-10">
       <div className="container mx-auto">
-        <div className="flex flex-col ">
+        <div className="flex flex-col  md:flex-row">
           {/*sidebar*/}
-          <aside className="mb-8 w-full p-4 lg:fixed lg:h-[64vh] lg:w-[300px]">
+          <aside className="mb-8 w-full p-4 sm:w-[240px] lg:h-[64vh]">
             <RadioGroup
               defaultValue="all"
               className="mb-12 flex flex-col gap-6"
@@ -71,7 +71,7 @@ const BikeCategories: React.FC<BikeCategoriesProps> = ({ bikes }) => {
             </RadioGroup>
             {/*price slider*/}
             <div className="max-w-56">
-              <p className="mb-4 text-lg font-medium">
+              <p className="mb-4 text-base font-medium lg:text-lg">
                 Max Price:{' '}
                 <span className="ml-2 font-semibold text-accent">${price}</span>
                 <span className="ml-2">({filteredBikes.length} items)</span>
@@ -85,8 +85,8 @@ const BikeCategories: React.FC<BikeCategoriesProps> = ({ bikes }) => {
             </div>
           </aside>
           {/*bike list*/}
-          <div className="w-fullxl:w-[1050px] ml-auto">
-            <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 lg:grid-cols-3">
+          <div className="w-fullxl:w-[1050px] md:ml-auto">
+            <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 lg:grid-cols-3 lg:gap-[30px]">
               {filteredBikes.map(bike => (
                 <Bike key={bike.price_id} bike={bike} />
               ))}

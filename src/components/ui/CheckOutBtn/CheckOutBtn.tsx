@@ -18,7 +18,7 @@ const CheckOutBtn = () => {
   const { redirectToCheckout } = useShoppingCart();
 
   return (
-    <button className="btn btn-primary w-full" onClick={handleCheckout}>
+    <button className="btn btn-primary mb-10 w-full" onClick={handleCheckout}>
       Proceed to checkout
     </button>
   );
