@@ -30,6 +30,11 @@ const config = {
           xl: '2rem',
         },
       },
+      backgroundImage: {
+        patternLg: `url(/images/pattern.jpg)`,
+        patternSm: `url(/images/pattern1.jpg)`,
+        patternXs: `url(/images/pattern2.jpg)`,
+      },
       fontFamily: {
         rajdhani: ['var(--font-rajdhani)'],
       },
