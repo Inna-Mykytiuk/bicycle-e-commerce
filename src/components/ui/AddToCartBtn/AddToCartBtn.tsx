@@ -8,12 +8,13 @@ interface AddToCartBtnProps {
   btnStyles: string;
   text?: string;
   icon?: React.ReactNode;
-  id: string;
+  id?: string;
   currency: string;
   name: string;
   description: string;
   images: { url: () => string }[];
   price: number;
+  price_id: string;
 }
 
 const AddToCartBtn: React.FC<AddToCartBtnProps> = ({
@@ -26,6 +27,7 @@ const AddToCartBtn: React.FC<AddToCartBtnProps> = ({
   description,
   images,
   price,
+  price_id,
 }) => {
   const { addItem } = useShoppingCart();
   const { toast } = useToast();
@@ -37,6 +39,7 @@ const AddToCartBtn: React.FC<AddToCartBtnProps> = ({
     description,
     images,
     price,
+    price_id,
   };
 
   return (

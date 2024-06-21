@@ -16,7 +16,7 @@ import {
 
 const ProductDetails = async ({ params }: { params: { slug: string } }) => {
   const bike = await getProductDetails(params.slug);
-  console.log(bike);
+  // console.log(bike);
 
   if (!bike) {
     return <div>Product not found</div>;
@@ -52,9 +52,9 @@ const ProductDetails = async ({ params }: { params: { slug: string } }) => {
               </div>
               <p>{bike.description}</p>
               <AddToCartBtn
+                price_id={bike.price_id}
                 text={'Add to cart'}
                 btnStyles="btn btn-accent"
-                id={bike._id}
                 currency={bike.currency}
                 name={bike.name}
                 description={bike.description}

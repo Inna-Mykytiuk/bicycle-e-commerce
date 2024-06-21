@@ -6,7 +6,7 @@ export const popularProductQuery = groq`*[_type == 'product' && references(*[_ty
     description,
     images,
     price,
-    proce_id,
+    price_id,
     "slug": slug.current,
     "categories": categories[] -> {
     name

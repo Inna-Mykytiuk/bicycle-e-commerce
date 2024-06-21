@@ -6,6 +6,8 @@ import PopularBikesCarousel from '../PopularBikesCarousel/PopularBikesCarousel';
 const PopularBikes = async () => {
   const bikes = await getPopularProducts();
 
+  // console.log(bikes);
+
   return (
     <section className="py-24">
       <div className="container mx-auto">

@@ -38,7 +38,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <Footer />
-          <div className="h-[2000px]"></div>
+          {/* <div className="h-[2000px]"></div> */}
         </CartProvider>
       </body>
     </html>

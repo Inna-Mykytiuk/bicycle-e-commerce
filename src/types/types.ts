@@ -4,7 +4,7 @@ export type PopularBike = {
   description: string;
   images: { url: () => string }[];
   price: number;
-  proce_id: string;
+  price_id: string;
   currency: string;
   slug: string;
   categories: {

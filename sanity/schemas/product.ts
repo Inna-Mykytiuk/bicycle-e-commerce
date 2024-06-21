@@ -25,7 +25,7 @@ const product = defineType({
     defineField({
       name: 'price_id',
       title: 'Stripe Product Price Id',
-      type: 'number',
+      type: 'string',
     }),
     defineField({
       name: 'images',

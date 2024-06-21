@@ -1,6 +1,6 @@
 import { groq } from 'next-sanity';
 
-export const productDetailsQuery = groq`*[_type == 'product' && slug.current == $slug][0] {
+export const allProductsQuery = groq`*[_type == 'product'] {
   _id,
   name,
   description,
