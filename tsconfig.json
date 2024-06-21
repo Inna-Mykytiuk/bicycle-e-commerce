@@ -29,7 +29,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/components/common/PopularBikesCarousel"
-, "src/components/common/BikeCategories"  ],
+    "src/components/common/PopularBikesCarousel",
+    "src/components/common/BikeCategories"
+  ],
   "exclude": ["node_modules"]
 }
